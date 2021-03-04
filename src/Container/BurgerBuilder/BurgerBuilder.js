@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import Burger from '../../Components/Burger/Burger'
-import Wrapper from '../../HOC/Wrapper'
+import Wrapper from '../../HOC/Wrapper/Wrapper'
 import BuildControls from '../../Components/Burger/BuildControls/BuildControls'
 import Modal from '../../Components/UI/Modal/Modal'
 import OrderSummary from '../../Components/Burger/OrderSummary/OrderSummary'
-import Layout from '../../Components/Layout/Layoyt' 
+import Layout from '../../HOC/Layout/Layoyt' 
 const INGREDIENTS_PRICE={
     Salad:5,
     Meat:10,
@@ -107,6 +107,7 @@ export default class BurgerBuilder extends Component {
                     conitinue={this.continuepurchasing}
                     price={this.state.total_price}/>
                 </Modal>
+
                 <Layout show={this.state.purchasing} disable={this.clickedforpurchasing}/>
                 
                 <Burger ingredients={this.state.ingredients}/>
