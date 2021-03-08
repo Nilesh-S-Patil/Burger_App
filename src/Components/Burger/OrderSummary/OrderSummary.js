@@ -7,8 +7,11 @@ export default function OrderSummary(props) {
         .map(igkeys=>{
             return <li key={igkeys}><span>{igkeys}</span>:{props.ingredients[igkeys]}</li>
         })
-    return (
+        
+        return (
+           
         <Wrapper>
+             
             <h3>Your Order</h3>
             <p>A delicious burger with folloeing ingridients </p>
                 <ul>

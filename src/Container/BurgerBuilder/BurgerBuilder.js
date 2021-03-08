@@ -5,6 +5,10 @@ import BuildControls from '../../Components/Burger/BuildControls/BuildControls'
 import Modal from '../../Components/UI/Modal/Modal'
 import OrderSummary from '../../Components/Burger/OrderSummary/OrderSummary'
 import Layout from '../../HOC/Layout/Layoyt' 
+import axios from '../../axios-order'
+import Spinner from '../../Components/UI/Spinner/Spinner'
+
+
 const INGREDIENTS_PRICE={
     Salad:5,
     Meat:10,
@@ -14,15 +18,25 @@ const INGREDIENTS_PRICE={
 
 export default class BurgerBuilder extends Component {
     state={
-        ingredients:{
-            Salad:0,
-            Bacon:0,
-            Meat:0,
-            Cheese:0,
-        },
+        ingredients:null,
         total_price:20,
         purchasable:false,
-        purchasing:false
+        purchasing:false,
+        loading:false
+    }
+
+    //use for fetching data from firebase
+    componentDidMount(){
+        
+        axios.get('https://burger-builder-eedad-default-rtdb.firebaseio.com/ingridients.json')
+        .then(response=>{
+            this.setState({ingredients:response.data})
+            console.log(this.state.ingredients)
+        })
+        // .catch(error=>{
+        //     console.log('Something went wrong')
+        // })
+
     }
 
     //this method is use to change the status of purchasing
@@ -31,11 +45,20 @@ export default class BurgerBuilder extends Component {
         this.setState({purchasing:true})
     }
     clickedforpurchasing=()=>{
-        this.setState({purchasing:false})
-    }
+l    }
+
+    //post data to firbase url ,which is defind in file->axios.order.js
+
     continuepurchasing=()=>
     {
+        this.setState({loading:true})
         alert('You continue');
+       axios.post('./order.json',this.state.ingredients)
+       .then(res=>
+        this.setState({loading:false}))
+        .catch(error=>
+            console.log(error))
+            this.setState({loading:false})
     }
 
     changePurchasableState=(ingredients)=>{
@@ -98,27 +121,48 @@ export default class BurgerBuilder extends Component {
         for( let key in disableInfo)
         {
             disableInfo[key] = disableInfo[key] <=0   //here  disableinfo[key] is value of each object like salad:0,meat:0 ...
-        }                                           //key refers to value of each object
-        return (
-            <Wrapper>
-                <Modal show={this.state.purchasing}>
-                    <OrderSummary ingredients={this.state.ingredients} 
-                    cancel={this.clickedforpurchasing} 
-                    conitinue={this.continuepurchasing}
-                    price={this.state.total_price}/>
-                </Modal>
+        } 
+        
+        let burger=<Spinner/>
+        
+        if(this.state.ingredients){
+         
+         burger=(<wrapper>
+     
+            <Burger ingredients={this.state.ingredients}/>
+            <BuildControls 
+            addIngredients={this.addIngredients}
+            removeIngrients={this.removeIngrients}
+            disabled={disableInfo}
+            price={this.state.total_price}
+            purchasable={this.state.purchasable}
+            purchasing={this.purchasingHandler}
+            />
+   
+         </wrapper>)
+            
+            var  Order=  <OrderSummary ingredients={this.state.ingredients} 
+            cancel={this.clickedforpurchasing} 
+            conitinue={this.continuepurchasing}
+            price={this.state.total_price}/>
+        }
+        if(this.state.loading){
+            Order=<Spinner/>
+          }
+      
 
+        //key refers to value of each object
+        return (
+        
+            <Wrapper>
+            
+                <Modal show={this.state.purchasing}>
+                {Order}
+                </Modal>
+                
                 <Layout show={this.state.purchasing} disable={this.clickedforpurchasing}/>
                 
-                <Burger ingredients={this.state.ingredients}/>
-                <BuildControls 
-                addIngredients={this.addIngredients}
-                removeIngrients={this.removeIngrients}
-                disabled={disableInfo}
-                price={this.state.total_price}
-                purchasable={this.state.purchasable}
-                purchasing={this.purchasingHandler}
-                />
+                {burger}
             </Wrapper>
                 
             
